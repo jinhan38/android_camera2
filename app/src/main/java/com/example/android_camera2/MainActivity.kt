@@ -123,9 +123,9 @@ class MainActivity : ComponentActivity() {
         btnCapture.setOnClickListener {
             if (btnCapture.text == "stop") {
                 stopRecordingVideo()
-            }else{
+            } else {
 
-            startRecordingVideo()
+                startRecordingVideo()
             }
 //            takePicture()
         }
@@ -427,27 +427,29 @@ class MainActivity : ComponentActivity() {
 
     @Throws(IOException::class)
     private fun setUpMediaRecorder() {
-        mMediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
-        mMediaRecorder!!.setVideoSource(MediaRecorder.VideoSource.SURFACE)
-        mMediaRecorder!!.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-        val path = File("/sdcard/download/ihpRecord")
-        if (!path.exists()) {
-            path.mkdirs()
+        mMediaRecorder!!.apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setVideoSource(MediaRecorder.VideoSource.SURFACE)
+            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            val path = File("/sdcard/download/ihpRecord")
+            if (!path.exists()) {
+                path.mkdirs()
+            }
+            val fileName = String.format("%d.mp4", System.currentTimeMillis())
+            file = File(path, fileName)
+
+            setOutputFile(file.absolutePath)
+            setVideoEncodingBitRate(10000000)
+            setVideoFrameRate(30)
+            setVideoSize(imageDimension.width, imageDimension.height)
+            setVideoEncoder(MediaRecorder.VideoEncoder.H264)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+
+            val rotation = windowManager.defaultDisplay.rotation
+            setOrientationHint(ORIENTATION.get(rotation))
+            prepare()
         }
-        val fileName = String.format("%d.mp4", System.currentTimeMillis())
-        file= File(path, fileName)
 
-        val mNextVideoAbsolutePath = file.absolutePath
-        mMediaRecorder!!.setOutputFile(mNextVideoAbsolutePath)
-        mMediaRecorder!!.setVideoEncodingBitRate(10000000)
-        mMediaRecorder!!.setVideoFrameRate(30)
-        mMediaRecorder!!.setVideoSize(imageDimension.width, imageDimension.height)
-        mMediaRecorder!!.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
-        mMediaRecorder!!.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-
-        val rotation = windowManager.defaultDisplay.rotation
-        mMediaRecorder!!.setOrientationHint(ORIENTATION.get(rotation))
-        mMediaRecorder!!.prepare()
     }
 
     private fun stopRecordingVideo() {
@@ -467,6 +469,7 @@ class MainActivity : ComponentActivity() {
             Log.e(TAG, "stopRecordingVideo: eeee : ", e)
         }
     }
+
     override fun onResume() {
         super.onResume()
         startBackgroundThread()
